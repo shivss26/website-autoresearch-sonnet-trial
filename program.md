@@ -9,9 +9,10 @@ You are an autonomous web researcher. Your job is to improve a landing page's Li
    - `index.html` — the page you modify.
    - `styles.css` — the stylesheet you modify.
    - `script.js` — the JavaScript you modify.
-3. **Open the page in Chrome**: Use Chrome DevTools MCP to serve or navigate to the page locally.
-4. **Initialize results.tsv**: Create `results.tsv` with just the header row. The baseline will be recorded after the first audit.
-5. **Confirm and go**: Confirm setup looks good with the user.
+3. **Start a local HTTP server**: Lighthouse requires HTTP, not file:// URLs. Run `python -m http.server 3456` (or similar) in the background. Verify it stays running. The page will be at `http://localhost:3456`.
+4. **Open the page in Chrome**: Use Chrome DevTools MCP `navigate_page` to go to `http://localhost:3456`. Take a screenshot to confirm the page loads.
+5. **Initialize results.tsv**: Create `results.tsv` with just the header row. The baseline will be recorded after the first audit.
+6. **Confirm and go**: Confirm setup looks good with the user.
 
 Once you get confirmation, kick off the experimentation.
 
@@ -29,7 +30,7 @@ Each experiment modifies the landing page and measures the result using Lighthou
 - Install packages or add build tools. This is plain HTML/CSS/JS with no build step.
 - Use any external CDN, API, or hosted resource. Everything must be local.
 
-**The goal is simple: get the highest composite Lighthouse score.** The composite score is the average of Performance, Accessibility, Best Practices, and SEO (each 0-100). Since the page is served locally, Performance will likely be high already — focus on Accessibility, Best Practices, and SEO.
+**The goal is simple: get the highest composite Lighthouse score.** The composite score is the average of Accessibility, Best Practices, and SEO (each 0-100). Performance is excluded — the `lighthouse_audit` MCP tool does not return a performance score, and localhost performance is near-perfect anyway.
 
 **Simplicity criterion**: All else being equal, simpler is better. A small improvement that adds ugly complexity is not worth it. Clean, readable code that scores well is the goal.
 
@@ -37,10 +38,11 @@ Each experiment modifies the landing page and measures the result using Lighthou
 
 You MUST use Chrome DevTools MCP for all measurement. This is how you see the page and evaluate it:
 
-1. **Open/navigate to the page**: Use `navigate_page` or `new_page` to load the local page in Chrome.
-2. **Take a screenshot**: Use `take_screenshot` to visually inspect the page before and after changes.
-3. **Run Lighthouse audit**: Use `lighthouse_audit` to get scores for Performance, Accessibility, Best Practices, and SEO.
-4. **Inspect specific issues**: Use `evaluate_script`, `take_snapshot`, or other DevTools tools to investigate specific problems Lighthouse flags.
+1. **Ensure the HTTP server is running**: The page must be served over HTTP at `http://localhost:3456`. If the server died, restart it with `python -m http.server 3456` in the background before proceeding.
+2. **Navigate to the page**: Use `navigate_page` to load `http://localhost:3456` in Chrome. After making code changes, always reload/navigate again before auditing.
+3. **Take a screenshot**: Use `take_screenshot` to visually inspect the page before and after changes.
+4. **Run Lighthouse audit**: Use `lighthouse_audit` on `http://localhost:3456` to get scores for Accessibility, Best Practices, and SEO. Performance is not available through this tool — that's expected, ignore it.
+5. **Inspect specific issues**: Use `evaluate_script`, `take_snapshot`, or other DevTools tools to investigate specific problems Lighthouse flags.
 
 Do NOT use CLI tools, headless scripts, or any measurement method the user cannot see. The user wants to watch what you're doing through Chrome.
 
@@ -50,7 +52,6 @@ After each Lighthouse audit, report scores like this:
 
 ```
 ===== LIGHTHOUSE SCORES =====
-performance:    XX
 accessibility:  XX
 best-practices: XX
 seo:            XX
@@ -62,28 +63,27 @@ composite:      XX.X
 
 Log every experiment to `results.tsv` (tab-separated, NOT comma-separated).
 
-The TSV has a header row and 7 columns:
+The TSV has a header row and 6 columns:
 
 ```
-commit	perf	a11y	bp	seo	composite	status	description
+commit	a11y	bp	seo	composite	status	description
 ```
 
 1. git commit hash (short, 7 chars)
-2. performance score (0-100)
-3. accessibility score (0-100)
-4. best-practices score (0-100)
-5. seo score (0-100)
-6. composite (average of the four, one decimal)
-7. status: `keep` or `discard`
-8. short text description of what this experiment tried
+2. accessibility score (0-100)
+3. best-practices score (0-100)
+4. seo score (0-100)
+5. composite (average of the three, one decimal)
+6. status: `baseline`, `keep`, or `discard`
+7. short text description of what this experiment tried
 
 Example:
 
 ```
-commit	perf	a11y	bp	seo	composite	status	description
-a1b2c3d	97	42	78	67	71.0	baseline	initial page state
-b2c3d4e	97	58	78	82	78.8	keep	added meta viewport and lang attribute
-c3d4e5f	97	55	71	82	76.3	discard	switched all fonts to Arial
+commit	a11y	bp	seo	composite	status	description
+a1b2c3d	42	78	67	62.3	baseline	initial page state
+b2c3d4e	58	78	82	72.7	keep	added meta viewport and lang attribute
+c3d4e5f	55	71	82	69.3	discard	switched all fonts to Arial
 ```
 
 ## The experiment loop
