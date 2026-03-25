@@ -1,0 +1,7 @@
+commit	a11y	bp	seo	composite	status	description
+2a43a0e	68	92	82	80.7	baseline	initial page state
+a5d17c5	78	100	82	86.7	keep	add DOCTYPE, lang="en", meta charset
+de625ae	78	100	91	89.7	keep	add meta description
+6949631	89	100	100	96.3	keep	add alt attributes to all images
+e0ecd51	92	100	100	97.3	keep	add main landmark element
+04200ab	100	100	100	100.0	keep	fix color contrast across all elements
