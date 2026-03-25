@@ -1,8 +1,3 @@
-/* ANTI-PATTERN: Massive CSS file where ~70% of rules are unused.
-   Lighthouse penalizes unused CSS because the browser must download
-   and parse ALL of it before rendering, even rules that match nothing. */
-
-/* ===== Reset (partially useful) ===== */
 * {
     margin: 0;
     padding: 0;
@@ -10,12 +5,22 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    /* ANTI-PATTERN: No explicit background/text color — relies on browser defaults */
+    font-family: Comic Sans MS, Papyrus, cursive, sans-serif;
+    cursor: url('assets/cursor.cur'), crosshair;
 }
 
-/* ===== UNUSED RULES START HERE ===== */
-/* These exist only to bloat the stylesheet. None of these classes are used in index.html. */
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: blink;
+}
+
+::selection {
+    background: #FF00FF;
+    color: #FFD700;
+}
 
 .sidebar {
     width: 260px;
@@ -527,7 +532,6 @@ body {
     margin: 0 auto;
 }
 
-/* Responsive breakpoints (also unused since page uses inline styles) */
 @media (max-width: 1024px) {
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr);

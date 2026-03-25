@@ -1,13 +1,7 @@
-// ANTI-PATTERN: This entire file is render-blocking (loaded synchronously in <head>)
-// The browser must download, parse, and execute this BEFORE it can render ANY HTML.
-// Most of this code is unused — it's for a dashboard app that doesn't exist on this page.
-
-// ANTI-PATTERN: Console errors — referencing things that don't exist
 console.log("Initializing DevFlow v2.4.1...");
 var config = window.__DEVFLOW_CONFIG || {};
 var apiBase = config.apiUrl || "https://api.devflow.io/v1";
 
-// ANTI-PATTERN: Expensive synchronous operation on load — blocking the main thread
 function generateLargeDataset() {
     var data = [];
     for (var i = 0; i < 10000; i++) {
@@ -25,11 +19,8 @@ function generateLargeDataset() {
     return data;
 }
 
-// ANTI-PATTERN: Runs immediately on parse — blocks rendering
 var taskDatabase = generateLargeDataset();
 console.log("Generated " + taskDatabase.length + " tasks");
-
-// ANTI-PATTERN: Large unused functions that bloat the JS bundle
 
 function initKanbanBoard(containerId) {
     var container = document.getElementById(containerId);
@@ -43,7 +34,6 @@ function initKanbanBoard(containerId) {
         container.appendChild(col);
     });
 
-    // Drag and drop handlers
     container.addEventListener("dragstart", function(e) {
         e.dataTransfer.setData("text/plain", e.target.dataset.taskId);
         e.target.style.opacity = "0.5";
@@ -69,7 +59,6 @@ function initKanbanBoard(containerId) {
         var taskId = e.dataTransfer.getData("text/plain");
         var column = e.target.closest(".kanban-column");
         if (column && taskId) {
-            // Move task to new column
             var task = document.querySelector('[data-task-id="' + taskId + '"]');
             if (task) column.appendChild(task);
             column.style.background = "";
@@ -84,7 +73,6 @@ function initChart(canvasId, chartData) {
     var width = canvas.width;
     var height = canvas.height;
 
-    // Simple bar chart renderer
     var maxVal = Math.max.apply(null, chartData.values);
     var barWidth = (width - 40) / chartData.values.length;
 
@@ -110,7 +98,6 @@ function initNotifications() {
     var panel = document.querySelector(".notification-panel");
     if (!panel) return;
 
-    // Poll for new notifications every 30 seconds
     setInterval(function() {
         fetch(apiBase + "/notifications?unread=true")
             .then(function(r) { return r.json(); })
@@ -120,7 +107,7 @@ function initNotifications() {
                     document.querySelector(".notif-badge").style.display = "block";
                 }
             })
-            .catch(function() { /* silently fail */ });
+            .catch(function() {});
     }, 30000);
 }
 
@@ -186,7 +173,6 @@ function formatRelativeTime(isoString) {
     return formatDate(isoString);
 }
 
-// ANTI-PATTERN: localStorage operations that may throw in restricted contexts
 try {
     var savedTheme = localStorage.getItem("devflow-theme") || "light";
     document.body.setAttribute("data-theme", savedTheme);
@@ -194,7 +180,6 @@ try {
     console.warn("localStorage not available");
 }
 
-// ANTI-PATTERN: Registering event listeners for elements that don't exist
 document.addEventListener("DOMContentLoaded", function() {
     console.log("DOM loaded, initializing modules...");
     initKanbanBoard("kanban-container");
@@ -202,7 +187,6 @@ document.addEventListener("DOMContentLoaded", function() {
     initNotifications();
     initSearch();
 
-    // ANTI-PATTERN: Attaching listeners to null elements (querySelector returns null)
     var themeToggle = document.querySelector("#theme-toggle");
     if (themeToggle) {
         themeToggle.addEventListener("click", function() {
@@ -213,7 +197,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Keyboard shortcuts
     document.addEventListener("keydown", function(e) {
         if (e.ctrlKey && e.key === "k") {
             e.preventDefault();
