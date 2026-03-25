@@ -88,19 +88,29 @@ c3d4e5f	97	55	71	82	76.3	discard	switched all fonts to Arial
 
 ## The experiment loop
 
+Every experiment is committed and pushed to GitHub so the full history is visible. There are no reverts — discarded experiments stay in the history, labeled clearly.
+
 LOOP:
 
 1. Look at the page: take a screenshot and run a Lighthouse audit to understand the current state.
 2. Propose a hypothesis: explain what you want to change and why you think it will improve scores. **Wait for user approval before proceeding.**
 3. Make the change to the code.
-4. `git commit` the change with a descriptive message.
+4. `git commit` the change with a descriptive message prefixed with `[EXPERIMENT]`.
 5. Reload the page in Chrome and run a new Lighthouse audit.
 6. Report before/after scores and explain the result — why did it help or not?
 7. **Ask the user**: keep or discard?
-8. If keep: the commit stays, this becomes the new baseline.
-9. If discard: `git reset --hard HEAD~1` to revert.
+8. If **keep**: commit a small update to the commit message or leave as-is. This becomes the new baseline. Then `git push`.
+9. If **discard**: revert the code back to the previous baseline state and commit the revert with a message like `[DISCARD] revert: <description>`. Then `git push`. The original experiment commit AND the revert commit both stay in history.
 10. Log the result in `results.tsv` (do NOT commit results.tsv, leave it untracked).
 11. Go to step 1.
+
+**Commit message format:**
+- Baseline: `[BASELINE] initial page state`
+- Kept experiments: `[KEEP] added semantic HTML landmarks`
+- Experiment (before decision): `[EXPERIMENT] replaced table layout with flexbox`
+- Discarded reverts: `[DISCARD] revert: replaced table layout with flexbox`
+
+This way anyone browsing the GitHub commit history can see every experiment, what worked, and what didn't.
 
 ## Important rules
 
@@ -109,3 +119,4 @@ LOOP:
 - **Wait for approval.** Unlike Karpathy's overnight autonomous loop, this loop requires user approval at steps 2 and 7. Do not skip ahead.
 - **Use Chrome DevTools MCP for everything.** The user wants to see the page through the browser, not through CLI output.
 - **The baseline ratchets forward.** When an experiment is kept, it becomes the new baseline. Always compare against the most recent kept version, not the original.
+- **Push after every experiment.** Every commit (kept or discarded) gets pushed to GitHub so the full experiment history is preserved remotely.
